@@ -28,7 +28,6 @@ importlib-metadata==8.7.0
 jaraco-classes==3.4.0
 jaraco-context==6.0.1
 jaraco-functools==4.3.0
--e file:///H:/jira-mcp/jira_mcp
 jsonschema==4.25.1
 jsonschema-path==0.3.4
 jsonschema-specifications==2025.9.1
