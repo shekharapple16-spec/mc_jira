@@ -2,33 +2,26 @@ from fastmcp import FastMCP
 import requests
 import os
 
-app = FastMCP("jira-mcp")
+# IMPORTANT: enable HTTP mode
+app = FastMCP("jira-mcp", transport="http")
 
-# Load environment variables
+# Load env vars
 JIRA_URL = os.getenv("JIRA_URL")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL")
 JIRA_TOKEN = os.getenv("JIRA_TOKEN")
 
 
 def get_jira_issue(issue_id: str):
-    """Internal helper to fetch a Jira issue."""
     url = f"{JIRA_URL}/rest/api/3/issue/{issue_id}"
     response = requests.get(url, auth=(JIRA_EMAIL, JIRA_TOKEN))
-
     if response.status_code != 200:
-        return {
-            "error": f"Failed: {response.status_code}",
-            "details": response.text
-        }
-
+        return {"error": response.status_code, "details": response.text}
     return response.json()
 
 
 @app.tool()
 def get_acceptance_criteria(issue_id: str):
-    """Fetch acceptance criteria from a Jira ticket."""
     data = get_jira_issue(issue_id)
-
     if "error" in data:
         return data
 
@@ -44,10 +37,8 @@ def get_acceptance_criteria(issue_id: str):
         "acceptance_criteria": ac_value
     }
 
-
-# if __name__ == "__main__":
-#     app.run()
-
+# HTTP server entry for Render
 if __name__ == "__main__":
-    app.run_http(host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
-
+    # Render sets PORT automatically
+    port = int(os.getenv("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
