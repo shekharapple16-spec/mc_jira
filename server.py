@@ -45,5 +45,9 @@ def get_acceptance_criteria(issue_id: str):
     }
 
 
+# if __name__ == "__main__":
+#     app.run()
+
 if __name__ == "__main__":
-    app.run()
+    app.run_http(host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
+
