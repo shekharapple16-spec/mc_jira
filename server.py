@@ -1,8 +1,9 @@
-from fastmcp import FastMCP, FastMCPHTTPServer
+from fastmcp import FastMCP
+from fastmcp.serve import FastMCPHTTPServer   # ✅ Correct import
 import requests
 import os
 
-app = FastMCP("jira-mcp")  # no transport param
+app = FastMCP("jira-mcp")
 
 # Load env vars
 JIRA_URL = os.getenv("JIRA_URL")
@@ -15,18 +16,27 @@ def get_jira_issue(issue_id: str):
     url = f"{JIRA_URL}/rest/api/3/issue/{issue_id}"
     response = requests.get(url, auth=(JIRA_EMAIL, JIRA_TOKEN))
     if response.status_code != 200:
-        return {"error": f"Failed: {response.status_code}", "details": response.text}
+        return {
+            "error": f"Failed: {response.status_code}",
+            "details": response.text
+        }
     return response.json()
 
 
 @app.tool()
 def get_acceptance_criteria(issue_id: str):
     data = get_jira_issue(issue_id)
+
     if "error" in data:
         return data
+
     fields = data["fields"]
     ac_value = fields.get(AC_FIELD)
-    return {"issue": issue_id, "acceptance_criteria": ac_value}
+
+    return {
+        "issue": issue_id,
+        "acceptance_criteria": ac_value
+    }
 
 
 if __name__ == "__main__":
