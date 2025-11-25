@@ -1,2 +1,5 @@
-fastapi
-uvicorn
+fastmcp==2.13.1
+fastapi==0.115.0
+uvicorn==0.38.0
+requests==2.32.5
+python-dotenv==1.2.1
