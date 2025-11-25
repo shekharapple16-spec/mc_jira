@@ -1,11 +1,12 @@
-from fastapi import FastAPI
 from fastmcp import FastMCP
+from fastapi import FastAPI
 import requests
 import os
 
-app = FastMCP("jira-mcp")
-api = FastAPI()
+app_mcp = FastMCP("jira-mcp")     # MCP logic
+app = FastAPI()                   # HTTP server wrapper
 
+# Load env vars
 JIRA_URL = os.getenv("JIRA_URL")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL")
 JIRA_TOKEN = os.getenv("JIRA_TOKEN")
@@ -20,26 +21,25 @@ def get_jira_issue(issue_id: str):
     return response.json()
 
 
-@app.tool()
+@app_mcp.tool()
 def get_acceptance_criteria(issue_id: str):
     data = get_jira_issue(issue_id)
     if "error" in data:
         return data
-    fields = data.get("fields", {})
-    return {
-        "issue": issue_id,
-        "acceptance_criteria": fields.get(AC_FIELD)
-    }
+    fields = data["fields"]
+    ac_value = fields.get(AC_FIELD)
+    return {"issue": issue_id, "acceptance_criteria": ac_value}
 
 
-# ---- HTTP Wrapper for Render ----
-@api.get("/")
-def root():
-    return {"status": "Jira MCP running"}
+# --------- HTTP ENDPOINT TO LET VS CODE CALL MCP ----------
+@app.post("/mcp")
+async def mcp_handler(request: dict):
+    """Wrap FastMCP for HTTP transport"""
+    response = await app_mcp.dispatch(request)
+    return response
 
 
-@api.post("/run")
-def run_tool(tool: str, issue_id: str):
-    if tool == "get_acceptance_criteria":
-        return get_acceptance_criteria(issue_id)
-    return {"error": "Unknown tool"}
+# ------------- Root health check ----------------
+@app.get("/")
+def health():
+    return {"status": "running MCP JIRA server on Render"}
