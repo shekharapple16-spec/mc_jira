@@ -1,16 +1,14 @@
 from fastmcp import FastMCP
-from fastapi import FastAPI
+from fastmcp.server import FastMCPHTTPServer
 import requests
 import os
 
-app_mcp = FastMCP("jira-mcp")     # MCP logic
-app = FastAPI()                   # HTTP server wrapper
+app = FastMCP("jira-mcp")
 
-# Load env vars
 JIRA_URL = os.getenv("JIRA_URL")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL")
 JIRA_TOKEN = os.getenv("JIRA_TOKEN")
-AC_FIELD = os.getenv("AC_FIELD")
+AC_FIELD = os.getenv("AC_FIELD", "description")
 
 
 def get_jira_issue(issue_id: str):
@@ -21,25 +19,18 @@ def get_jira_issue(issue_id: str):
     return response.json()
 
 
-@app_mcp.tool()
+@app.tool()
 def get_acceptance_criteria(issue_id: str):
     data = get_jira_issue(issue_id)
     if "error" in data:
         return data
     fields = data["fields"]
-    ac_value = fields.get(AC_FIELD)
-    return {"issue": issue_id, "acceptance_criteria": ac_value}
+    return {
+        "issue": issue_id,
+        "acceptance_criteria": fields.get(AC_FIELD)
+    }
 
 
-# --------- HTTP ENDPOINT TO LET VS CODE CALL MCP ----------
-@app.post("/mcp")
-async def mcp_handler(request: dict):
-    """Wrap FastMCP for HTTP transport"""
-    response = await app_mcp.dispatch(request)
-    return response
-
-
-# ------------- Root health check ----------------
-@app.get("/")
-def health():
-    return {"status": "running MCP JIRA server on Render"}
+if __name__ == "__main__":
+    server = FastMCPHTTPServer(app)
+    server.run(host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
