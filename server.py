@@ -1,6 +1,8 @@
 from fastmcp import FastMCP
 import os
 import requests
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 # Create MCP app
 app = FastMCP("jira-mcp")
@@ -43,21 +45,15 @@ def get_acceptance_criteria(issue_id: str):
     }
 
 
-# =========================
-# Health-check route
-# =========================
-@app.fastapi_app.get("/")
-async def root():
-    """Simple health-check endpoint for browser/monitoring."""
-    return {
+# --- Health‑check route using custom_route ---
+@app.custom_route("/", methods=["GET"])
+async def root(request: Request):
+    return JSONResponse({
         "status": "MCP server 'jira-mcp' is running!",
         "mcp_endpoint": "/mcp"
-    }
+    })
 
 
-# =========================
-# Server start
-# =========================
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))
     app.run(host="0.0.0.0", port=port, transport="http")
