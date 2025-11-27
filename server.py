@@ -30,7 +30,7 @@ def get_jira_issue(issue_id: str):
 
 @app.tool()
 def get_acceptance_criteria(issue_id: str):
-    """Returns Acceptance Criteria from a Jira issue."""
+    """Fetches the acceptance criteria or key requirements associated with a given issue or task ID from a project management system, returning it in a structured format"""
     data = get_jira_issue(issue_id)
 
     if "error" in data:
