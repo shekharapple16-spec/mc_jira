@@ -43,5 +43,11 @@ def get_acceptance_criteria(issue_id: str):
     }
 
 
+# if __name__ == "__main__":
+#     app.run()   # STDIO START (required)
+
+    # 🚀 RENDER MODE — HTTP server
 if __name__ == "__main__":
-    app.run()   # STDIO START (required)
+    port = int(os.getenv("PORT", 8000))
+    app.run_http(host="0.0.0.0", port=port)
+
