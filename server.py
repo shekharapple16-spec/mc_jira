@@ -1,7 +1,6 @@
 from fastmcp import FastMCP
 import os
 import requests
-from fastapi import FastAPI
 
 # Create MCP app
 app = FastMCP("jira-mcp")
@@ -47,7 +46,7 @@ def get_acceptance_criteria(issue_id: str):
 # =========================
 # Health-check route
 # =========================
-@app.app.get("/")
+@app.fastapi_app.get("/")
 async def root():
     """Simple health-check endpoint for browser/monitoring."""
     return {
