@@ -1,6 +1,7 @@
 from fastmcp import FastMCP
 import os
 import requests
+from fastapi import FastAPI
 
 # Create MCP app
 app = FastMCP("jira-mcp")
@@ -43,11 +44,21 @@ def get_acceptance_criteria(issue_id: str):
     }
 
 
-# if __name__ == "__main__":
-#     app.run()   # STDIO START (required)
+# =========================
+# Health-check route
+# =========================
+@app.app.get("/")
+async def root():
+    """Simple health-check endpoint for browser/monitoring."""
+    return {
+        "status": "MCP server 'jira-mcp' is running!",
+        "mcp_endpoint": "/mcp"
+    }
 
-    # 🚀 RENDER MODE — HTTP server
+
+# =========================
+# Server start
+# =========================
 if __name__ == "__main__":
-     port = int(os.getenv("PORT", 10000))
-     app.run(host="0.0.0.0", port=port,transport="http")
-
+    port = int(os.getenv("PORT", 10000))
+    app.run(host="0.0.0.0", port=port, transport="http")
