@@ -1,27 +1,28 @@
-from playwright.sync_api import sync_playwright
+# dom_extractor.py
+from playwright.async_api import async_playwright
 
-def extract_dom_and_locators(url: str):
+async def extract_dom_and_locators(url: str):
     """
-    Opens the URL with Playwright, extracts DOM elements,
+    Opens the URL with Playwright asynchronously, extracts DOM elements,
     and generates Selenium + Playwright locators.
     """
 
     locator_data = []
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        page.goto(url, wait_until="domcontentloaded")
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
+        await page.goto(url, wait_until="domcontentloaded")
 
-        elements = page.query_selector_all("*")
+        elements = await page.query_selector_all("*")
 
         for el in elements[:200]:  # limit to avoid overload
             try:
-                tag = el.evaluate("e => e.tagName.toLowerCase()")
-                id_attr = el.get_attribute("id")
-                cls = el.get_attribute("class")
-                role = el.get_attribute("role")
-                text = el.inner_text()
+                tag = await el.evaluate("e => e.tagName.toLowerCase()")
+                id_attr = await el.get_attribute("id")
+                cls = await el.get_attribute("class")
+                role = await el.get_attribute("role")
+                text = await el.inner_text()
 
                 playwright_locators = []
                 selenium_locators = []
@@ -52,6 +53,6 @@ def extract_dom_and_locators(url: str):
             except Exception:
                 continue
 
-        browser.close()
+        await browser.close()
 
     return locator_data

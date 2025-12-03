@@ -48,12 +48,12 @@ def get_acceptance_criteria(issue_id: str):
     }
 
 @app.tool()
-def extract_dom(url: str):
+async def extract_dom(url: str):
     """
-    MCP tool to extract DOM elements from a given URL
+    MCP tool to extract DOM elements asynchronously from a given URL
     using Playwright and generate Selenium + Playwright locators.
     """
-    return extract_dom_and_locators(url)
+    return await extract_dom_and_locators(url)
 
 # --- Health‑check route using custom_route ---
 @app.custom_route("/", methods=["GET"])
