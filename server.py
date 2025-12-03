@@ -3,6 +3,9 @@ import os
 import requests
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from dom_extractor import extract_dom_and_locators
+
+
 
 # Create MCP app
 app = FastMCP("jira-mcp")
@@ -44,6 +47,13 @@ def get_acceptance_criteria(issue_id: str):
         "acceptance_criteria": ac_value
     }
 
+@app.tool()
+def extract_dom(url: str):
+    """
+    MCP tool to extract DOM elements from a given URL
+    using Playwright and generate Selenium + Playwright locators.
+    """
+    return extract_dom_and_locators(url)
 
 # --- Health‑check route using custom_route ---
 @app.custom_route("/", methods=["GET"])
