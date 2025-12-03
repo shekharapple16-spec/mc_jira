@@ -10,7 +10,8 @@ async def extract_dom_and_locators(url: str):
     locator_data = []
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        # browser = await p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
         page = await browser.new_page()
         await page.goto(url, wait_until="domcontentloaded")
 
